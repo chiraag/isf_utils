@@ -59,11 +59,12 @@ class Curve(object):
     dict and the data. All tags are keys in the header dict
     """
 
-    def __init__(self, isf_file):
+    def __init__(self, isf_file=None):
         self.isf_file = isf_file
         self.header = {}
         self.data = np.array([])
-        self.parse_curve()
+        if self.isf_file is not None:
+            self.parse_curve()
 
 
     def parse_curve(self):
@@ -110,22 +111,21 @@ class Curve(object):
         return
 
 class CurveSet(object):
-    def __init__(self, folder, names=[]):
+    def __init__(self, folder=None, names=[]):
         self.name = folder
         self.curves = {}
         self.t = np.array([])
-        if not os.path.isdir(folder):
-            raise ValueError("Not a folder")
-        for filename in os.listdir(folder):
-            name, ext = os.path.splitext(filename)
-            if ext == '.isf':
-                channel = int(name[-1])-1
-                curvename = names[channel] if channel < len(names) else name
-                self.curves[curvename] = Curve(folder+'/'+filename)
-        if len(self.curves) != 0:
-            header = self.curves[self.curves.keys()[0]].header
-            nr_pt, tzero, tincr = [float(header[k]) for k in ['NR_PT', 'XZERO', 'XINCR']]
-            self.t = tzero + tincr*np.arange(nr_pt)
+        if folder is not None and os.path.isdir(folder):
+            for filename in os.listdir(folder):
+                name, ext = os.path.splitext(filename)
+                if ext == '.isf':
+                    channel = int(name[-1])-1
+                    curvename = names[channel] if channel < len(names) else name
+                    self.curves[curvename] = Curve(folder+'/'+filename)
+            if len(self.curves) != 0:
+                header = self.curves[self.curves.keys()[0]].header
+                nr_pt, tzero, tincr = [float(header[k]) for k in ['NR_PT', 'XZERO', 'XINCR']]
+                self.t = tzero + tincr*np.arange(nr_pt)
 
     def downsample(self, tlim=None, max_points=10000):
         tlim = (self.t[0], self.t[-1]) if tlim == None else tlim

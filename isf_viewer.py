@@ -31,7 +31,7 @@ class BokehScope(object):
         self.io_loop.start()
 
     def modify_doc(self, doc):
-        plot = figure(plot_width=800, title="Waveforms",
+        plot = figure(plot_width=1400, title="Waveforms",
                 tools="xpan,xwheel_zoom,xbox_zoom,undo, redo, reset")
         for i, c in enumerate(self.active):
             plot.line(x='t', y=c, color=self.colors[i], source=self.source)
