@@ -52,8 +52,3 @@ class BokehScope(object):
                 else:
                     self.skip_update = False
         plot.x_range.on_change('end', change_callback)
-
-if __name__ == '__main__':
-    c=isf_parse.CurveSet('example', ['clk', 'cmd', 'dat'])
-    app = BokehScope(c, ['clk', 'cmd'])
-    app.plot()
