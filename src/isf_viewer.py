@@ -57,6 +57,3 @@ if __name__ == '__main__':
     c=isf_parse.CurveSet('example', ['clk', 'cmd', 'dat'])
     app = BokehScope(c, ['clk', 'cmd'])
     app.plot()
-
-
-
