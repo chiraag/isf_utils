@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import io
 import os.path
 
 """ Code based on http://codereview.stackexchange.com/questions/91032/parsing-oscilloscope-data-follow-up"""
@@ -135,3 +136,20 @@ class CurveSet(object):
         delta = (nmax-nmin)/min(nmax-nmin, max_points)
         n = np.arange(nmin, nmax, delta, dtype=np.uint32)
         return dict({'t':self.t[n]}, **{k:self.curves[k].data[n] for k in self.curves})
+
+    def export_numpy(self, filename="data"):
+        np.savez(filename, t=self.t, **{k: self.curves[k].data for k in self.curves})
+
+    def export_mat(self, filename="data.mat"):
+        mdict = {'t': self.t}
+        for k in self.curves:
+            mdict[k] = self.curves[k].data
+        io.savemat(filename, mdict)
+
+if __name__ == "__main__":
+    c = CurveSet('example', ['clk', 'cmd', 'dat'])
+    c.export_numpy(filename="example/data")
+    c.export_mat(filename="example/data.mat")
+    d = np.load('example/data.npz')
+    for k in d.keys():
+        print(f"{k}: {d[k][:10]}")
