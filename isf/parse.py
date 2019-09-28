@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import io
 import os.path
+import fire
 
 """ Code based on http://codereview.stackexchange.com/questions/91032/parsing-oscilloscope-data-follow-up"""
 
@@ -147,9 +148,10 @@ class CurveSet(object):
         io.savemat(filename, mdict)
 
 if __name__ == "__main__":
-    c = CurveSet('example', ['clk', 'cmd', 'dat'])
-    c.export_numpy(filename="example/data")
-    c.export_mat(filename="example/data.mat")
-    d = np.load('example/data.npz')
-    for k in d.keys():
-        print(f"{k}: {d[k][:10]}")
+    fire.Fire(CurveSet)
+    # c = CurveSet('example', ['clk', 'cmd', 'dat'])
+    # c.export_numpy(filename="example/data")
+    # c.export_mat(filename="example/data.mat")
+    # d = np.load('example/data.npz')
+    # for k in d.keys():
+    #     print(f"{k}: {d[k][:10]}")

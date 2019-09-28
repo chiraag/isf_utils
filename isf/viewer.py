@@ -10,6 +10,8 @@ import numpy as np
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
 
+import fire
+
 class BokehScope(object):
     def __init__(self, curves, active):
         self.io_loop = IOLoop.current()
@@ -51,3 +53,18 @@ class BokehScope(object):
                 else:
                     self.skip_update = False
         plot.x_range.on_change('end', change_callback)
+
+def plot(folder, names, to_plot):
+    from . import parse
+
+    c = parse.CurveSet(folder, names)
+
+    try:
+        app = BokehScope(c, to_plot)
+        app.plot()
+    except KeyboardInterrupt:
+        exit()
+    pass
+
+if __name__ == "__main__":
+    fire.Fire(plot)
