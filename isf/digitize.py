@@ -1,4 +1,4 @@
-import isf_parse
+import parse
 import numpy as np
 
 clk_debounce = 5
@@ -40,7 +40,7 @@ def digitize(c, clk, tlim):
     return c_d
 
 if __name__ == '__main__':
-    c = isf_parse.CurveSet('example', ['clk', 'cmd', 'dat'])
+    c = parse.CurveSet('example', ['clk', 'cmd', 'dat'])
     c_d = digitize(c, 'clk', (-5.27e-5, -5.23e-5))
     for k in c_d.curves:
         print k, c_d.curves['cmd'].data

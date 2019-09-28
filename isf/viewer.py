@@ -6,7 +6,6 @@ from bokeh.application.handlers import FunctionHandler
 from bokeh.application import Application
 
 import numpy as np
-import isf_parse
 
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
