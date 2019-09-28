@@ -9,21 +9,21 @@ def _read_chunk(headerfile, delimiter):
     (ended by " ") or the value of a tag (ended by ";").
     """
     prior_delimiter = None
-    chunk = []
+    chunk = bytes()
     while True:
         c = headerfile.read(1)
-        if c != delimiter:
-            chunk.append(c)
-            if c == '"':
+        if c.decode() != delimiter:
+            chunk += c
+            if c.decode() == '"':
                 # switch delimiter to make sure to parse the whole string
                 # enclosed in '"'.
-                delimiter, prior_delimiter = c, delimiter
+                delimiter, prior_delimiter = c.decode(), delimiter
         elif prior_delimiter:
             # switch back delimiter
-            chunk.append(c)
+            chunk += c
             delimiter, prior_delimiter = prior_delimiter, None
         else:
-            return "".join(chunk)
+            return chunk.decode()
 
 
 def _read_data(bfile, position, header):
@@ -78,6 +78,7 @@ class Curve(object):
             raise ValueError("File type unkown.")
 
         with open(self.isf_file, 'rb') as ifile:
+            # print(f"Reading {self.isf_file}")
             # read header
             while True:
                 name = _read_chunk(ifile, " ")
@@ -86,12 +87,13 @@ class Curve(object):
 
                     assert name not in self.header
                     self.header[name] = value
+                    # print(f"{name} = {value}")
                 else:
                     # ":CURVE " is the last tag of the header, followed by
                     # '#XYYY' with X being the number of bytes of YYY.
                     # YYY is the length of the datastream following in bytes.
                     value = ifile.read(2)
-                    y_str = ifile.read(int(value[-1]))
+                    y_str = ifile.read(int(value[-1:].decode()))
                     value += y_str
 
                     # the number of bytes might be present with or without the
@@ -123,7 +125,7 @@ class CurveSet(object):
                     curvename = names[channel] if channel < len(names) else name
                     self.curves[curvename] = Curve(folder+'/'+filename)
             if len(self.curves) != 0:
-                header = self.curves[self.curves.keys()[0]].header
+                header = self.curves[list(self.curves.keys())[0]].header
                 nr_pt, tzero, tincr = [float(header[k]) for k in ['NR_PT', 'XZERO', 'XINCR']]
                 self.t = tzero + tincr*np.arange(nr_pt)
 
@@ -131,5 +133,5 @@ class CurveSet(object):
         tlim = (self.t[0], self.t[-1]) if tlim == None else tlim
         nmin, nmax = np.searchsorted(self.t, tlim)
         delta = (nmax-nmin)/min(nmax-nmin, max_points)
-        n = np.arange(nmin, nmax, delta)
+        n = np.arange(nmin, nmax, delta, dtype=np.uint32)
         return dict({'t':self.t[n]}, **{k:self.curves[k].data[n] for k in self.curves})
