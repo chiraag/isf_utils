@@ -42,16 +42,12 @@ class BokehScope(object):
         def update():
             self.source.data = self.curves.downsample(
                     tlim=[plot.x_range.start, plot.x_range.end])
-            self.skip_update = True
             self.busy = False
 
         def change_callback(attr, old, new):
             if not self.busy:
-                if not self.skip_update:
-                    self.busy = True
-                    doc.add_next_tick_callback(update)
-                else:
-                    self.skip_update = False
+                self.busy = True
+                doc.add_next_tick_callback(update)
         plot.x_range.on_change('end', change_callback)
 
 def plot(folder, names, to_plot):
